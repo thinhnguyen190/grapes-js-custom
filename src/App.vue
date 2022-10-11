@@ -17,7 +17,7 @@
   <div class="grapes__drawboard">
     <div class="grapes__drawboard__content">
       <div id="gjs">
-        <h1>alo</h1>
+        <h1 style="color: red;">alo</h1>
       </div>
     </div>
 
@@ -109,35 +109,75 @@ onMounted(() => {
     panels: {
       defaults: [],
     },
-     blockManager:
-      // Noi quan ly cac component co the tai su dung nhieu lan
-      {
-        appendTo: '.grapes__selects__component-available',
+    blockManager:
+    // Noi quan ly cac component co the tai su dung nhieu lan
+    {
+      appendTo: '.grapes__selects__component-available',
 
-        // thiet lap xem do giao dien grapesjs vao dau (do vao the div co id la gjs)
-        blocks: [
-          //Cac component co the tai su dung 
-          {
-        id: 'image',
-        label: 'Image',
-        media: `<<svg style="width:24px;height:24px" viewBox="0 0 24 24">
+      // thiet lap xem do giao dien grapesjs vao dau (do vao the div co id la gjs)
+      blocks: [
+        //Cac component co the tai su dung 
+        {
+          id: 'image',
+          label: 'Image',
+          media: `<<svg style="width:24px;height:24px" viewBox="0 0 24 24">
             <path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z" />
         </svg>>`,
-        // Use `image` component
-        content: { type: 'image' },
-        // The component `image` is activatable (shows the Asset Manager).
-        // We want to activate it once dropped in the canvas.
-        activate: true,
-        // select: true, // Default with `activate: true`
-      }
-        ],
-      },
+          // Use `image` component
+          content: { type: 'image' },
+          // The component `image` is activatable (shows the Asset Manager).
+          // We want to activate it once dropped in the canvas.
+          activate: true,
+          // select: true, // Default with `activate: true`
+        }
+      ],
+    },
+    selectorManager: {
+      componentFirst: true,
+    },
     // Avoid any default panel
   })
 
-  
+
 
   editor.setDragMode('absolute')
+
+  const blockManager = editor.Blocks
+
+  console.log(blockManager)
+
+  blockManager.render([
+    {
+      label: 'Label text', content: `<div class="uay">
+        <div class="div1">cai gi the</div>
+        <div class="div2">cai quan que</div>
+      </div>
+      <style>
+        .uay {
+          display: flex;
+          justify-content: center;
+          width: 200px;
+          height: 200px;
+          background-color: black;
+          color: white;
+        }
+        .uay .div1 {
+          color: yellow;
+        }
+
+        .uay .div2 {
+          color: red;
+        }
+        </style>
+      `}
+  ])
+
+
+  editor.on('component:update:content', model => {
+    console.log('New content', model.view.el.textContent);
+
+  })
+
 
   editor.on('component:selected', (element) => {
 
@@ -152,6 +192,7 @@ onMounted(() => {
       br: true,
 
     }
+    console.log(element)
 
     const commandToAdd = 'tlb-settime';
     const commandIcon = 'abc';
@@ -162,13 +203,10 @@ onMounted(() => {
       // console.log(elementSlt)
       // elementSlt.setAttributes({ src: '@avatar'})
 
-      console.log(editor.DomComponents.getWrapper().find('img'))
+      console.log(editor.getHtml())
     })
 
-    editor.Commands.add('doanxem', editor => {
-      console.log('nhan nut doan xem')
-      console.log(editor)
-    })
+
 
     // get the selected componnet and its default toolbar
     const selectedComponent = editor.getSelected();
@@ -185,6 +223,8 @@ onMounted(() => {
     }
 
   })
+
+
 
 
 
@@ -233,7 +273,7 @@ body {
   font-weight: 600;
 
   color: white;
-  background-color: blue;
+  background-color: rgb(255, 130, 180, 100%);
   border: 1px solid white;
 
   box-sizing: border-box;
@@ -300,5 +340,12 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
+}
+
+.grapes__drawboard #gjs-tools .gjs-toolbar {
+  position: fixed;
+  top: 0px !important;
+  width: calc(100% - 432px);
+  left: 432px !important;
 }
 </style>

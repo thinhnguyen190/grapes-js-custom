@@ -16,18 +16,38 @@
 
   <div class="grapes__drawboard">
     <div class="grapes__drawboard__content">
-      <div id="gjs">
-        <h1 style="color: red;">alo</h1>
+      <div id="gjs" ref="tableDraw">
+        <textarea style="color: red;" spellcheck="false">alo</textarea>
+
       </div>
     </div>
 
+    <div class="box--mention" ref="boxMention">
+      <div class="box--mention__item">
+        item1
+      </div>
+
+      <div class="box--mention__item">
+        item2
+      </div>
+
+      <div class="box--mention__item">
+        item3
+      </div>
+
+      <div class="box--mention__item">
+        item4
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+import Mentionify from './utils/AutoCompleteMention'
+
 
 let editor = {}
 
@@ -65,6 +85,36 @@ const listSelects = [
     name: "Favorites"
   }
 ]
+
+
+const boxMention = ref()
+
+const tableDraw = ref()
+//////////////////
+const users = [
+  { username: 'john_doe' },
+  { username: 'jane_doe' },
+]
+
+const resolveFn = prefix => prefix === ''
+  ? users
+  : users.filter(user => user.username.startsWith(prefix))
+
+const replaceFn = (user, trigger) => `${trigger}${user.username} `
+
+const menuItemFn = (user, setItem, selected) => {
+  const div = document.createElement('div')
+  div.setAttribute('role', 'option')
+  div.className = 'menu-item'
+  if (selected) {
+    div.classList.add('selected')
+    div.setAttribute('aria-selected', '')
+  }
+  div.textContent = user.username
+  div.onclick = setItem
+  return div
+}
+////////////////////
 
 const selectSelected = {
   name: "Element",
@@ -106,6 +156,7 @@ onMounted(() => {
     height: '100%',
     fromElement: true,
     storageManager: false,
+    colorPicker: { appendTo: 'parent', offset: { top: 26, left: -166, }},
     panels: {
       defaults: [],
     },
@@ -144,13 +195,13 @@ onMounted(() => {
 
   const blockManager = editor.Blocks
 
-  console.log(blockManager)
+
 
   blockManager.render([
     {
       label: 'Label text', content: `<div class="uay">
-        <div class="div1">cai gi the</div>
-        <div class="div2">cai quan que</div>
+        <textarea class="div1">cai gi the</textarea>
+        <textarea class="div2">cai quan que</textarea>
       </div>
       <style>
         .uay {
@@ -161,25 +212,59 @@ onMounted(() => {
           background-color: black;
           color: white;
         }
-        .uay .div1 {
-          color: yellow;
-        }
 
-        .uay .div2 {
-          color: red;
+        textarea {
+          resize: none; 
         }
         </style>
-      `}
+      `},
+    {
+      label: 'div',
+      content: `
+        <div>
+            mot cai div gi do
+          </div>
+      `
+    },
+    {
+      label: 'areatext',
+      content: `
+        <textarea>
+            mot cai text gi do
+          </textarea>
+      `
+    },
+    {
+      label: 'img',
+      content: `
+        <img />
+      `
+    }
   ])
 
 
-  editor.on('component:update:content', model => {
-    console.log('New content', model.view.el.textContent);
-
-  })
 
 
   editor.on('component:selected', (element) => {
+    const domElement = element.getEl();
+    console.log(domElement.innerHTML);
+    domElement.innerHTML = '<p>djashnjksajkfhnfnsjkfnsfbsakjfsnkj</p>'
+    const positionOfTableDraw = tableDraw.value.getBoundingClientRect()
+    if(!element['hasMention'] && element.get('tagName') === 'textarea') {
+      element['hasMention'] = true
+    new Mentionify(
+                    domElement,
+                    boxMention.value,
+                    resolveFn,
+                    replaceFn,
+                    menuItemFn,
+                    positionOfTableDraw
+                    )
+    }
+    
+    
+   
+    
 
     element.attributes.resizable = {
       tc: true,
@@ -192,7 +277,6 @@ onMounted(() => {
       br: true,
 
     }
-    console.log(element)
 
     const commandToAdd = 'tlb-settime';
     const commandIcon = 'abc';
@@ -203,7 +287,6 @@ onMounted(() => {
       // console.log(elementSlt)
       // elementSlt.setAttributes({ src: '@avatar'})
 
-      console.log(editor.getHtml())
     })
 
 
@@ -222,12 +305,8 @@ onMounted(() => {
       });
     }
 
+
   })
-
-
-
-
-
 
 
 })
@@ -348,4 +427,25 @@ body {
   width: calc(100% - 432px);
   left: 432px !important;
 }
+
+.box--mention {
+  background-color: #f3f3f3;
+  position: fixed;
+  z-index: 100;
+}
+
+.menu-item {
+    cursor: default;
+    padding: 1rem;
+  }
+  
+  .menu-item.selected {
+    background-color: slateGray;
+    color: white;
+  }
+  
+  .menu-item:hover:not(.selected) {
+    background-color: #fafafa;
+  }
+  
 </style>

@@ -1,4 +1,5 @@
 <template>
+  <button @click="getHtml()">click</button>
   <div class="grapes__selects">
     <div class="grapes__selects__items">
       <div class="grapes__selects__items__item" v-for="select in listSelects" :key="select.name"
@@ -146,6 +147,9 @@ const checkSelectSelected = (select) => {
   return false
 }
 
+const getHtml = () => {
+  console.log(editor.getHtml())
+}
 onMounted(() => {
   editor = grapesjs.init({
     // Indicate where to init the editor. You can also pass an HTMLElement
@@ -247,8 +251,6 @@ onMounted(() => {
 
   editor.on('component:selected', (element) => {
     const domElement = element.getEl();
-    console.log(domElement.innerHTML);
-    domElement.innerHTML = '<p>djashnjksajkfhnfnsjkfnsfbsakjfsnkj</p>'
     const positionOfTableDraw = tableDraw.value.getBoundingClientRect()
     if(!element['hasMention'] && element.get('tagName') === 'textarea') {
       element['hasMention'] = true
